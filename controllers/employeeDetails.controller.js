@@ -1,5 +1,5 @@
 const employeeModel = require('../models/employee.model');
-
+const validator = require('validator');
 const getEmployeeData = async (req, res) => {
     try {
         const data = await employeeModel.find();
@@ -27,6 +27,26 @@ const updateEmployeeData = async (req, res) => {
     const employeeId = req.params.id;
     console.log(employeeId)
     try {
+        const { name, email, password, mobile, designation, gender, course } = req.body;
+        if (!name || !email || !mobile || !designation || !gender || !course) {
+            return res.status(400).json({ message: 'Please provide all required fields!' });
+        }
+
+        // Check if email is valid
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ message: 'Invalid email address!' });
+        }
+
+        // Check if mobile number is valid
+        if (!validator.isMobilePhone(mobile, 'any', { strictMode: false }) || mobile.length !== 10) {
+            return res.status(400).json({ message: 'Invalid mobile number!' });
+        }
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                message: "Password must be at least 8 characters long and contain at least one capital letter, one number, and one special character."
+            })
+        }
         const updatedEmployee = await employeeModel.findByIdAndUpdate(employeeId, req.body, { new: true });
         res.status(201).json({ message: `Employee with Id ${employeeId} has been successfully updated!`, updatedEmployee })
     } catch (error) {
