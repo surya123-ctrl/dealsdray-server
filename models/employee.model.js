@@ -26,11 +26,11 @@ const employeeSchema = mongoose.Schema({
         enum: ['M', 'F'],
         required: true
     },
-    course: {
+    course: [{
         type: String,
         enum: ['MCA', 'BCA', 'BSC'],
         required: true
-    }
+    }]
 }, { timestamps: true });
 const employeeModel = mongoose.model("Employee", employeeSchema);
 module.exports = employeeModel

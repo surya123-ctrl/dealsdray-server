@@ -46,12 +46,21 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log(req.body);
         const foundUser = await employeeModel.findOne({ email });
         const isPasswordCorrect = await bcrypt.compare(password, foundUser?.password || "");
         if (!foundUser || !isPasswordCorrect) return res.status(400).json({ message: 'Invalid Name or Password!' });
-        const token = generateToken(foundUser._id);
+        const token = generateToken({
+            userId: foundUser._id,
+            name: foundUser.name,
+            email: foundUser.email,
+            mobile: foundUser.mobile,
+            designation: foundUser.designation,
+            gender: foundUser.gender,
+            course: foundUser.course
+        });
         console.log(token);
-        res.status(200).json({ message: `Welcome ${foundUser.name}` });
+        res.status(200).json({ message: `Welcome ${foundUser.name}`, token });
     }
     catch (error) {
         console.log('Internal Server Error', error);
